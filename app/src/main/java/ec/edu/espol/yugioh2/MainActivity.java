@@ -3,6 +3,7 @@ package ec.edu.espol.yugioh2;
 import android.app.AlertDialog;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -22,8 +23,10 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private TextView fases_M;
     private TextView fases_J;
-  
+    private Jugador jugador= new Jugador("Juan",this);
+    private ImageView[][] tableroJugador= new ImageView[2][3];
     private LinearLayout manoJugador;
+    private ArrayList<ImageView> imagenesDeckJugador= new ArrayList<>();
 
     private Deck deck;
 
@@ -38,10 +41,21 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        tableroJugador[0][0]= findViewById(R.id.J_cartaMonstruo1);
+        tableroJugador[0][1]= findViewById(R.id.J_cartaMonstruo2);
+        tableroJugador[0][2]= findViewById(R.id.J_cartaMonstruo3);
+        tableroJugador[1][0]= findViewById(R.id.J_cartaMagica1);
+        tableroJugador[1][1]= findViewById(R.id.J_cartaMagica2);
+        tableroJugador[1][2]= findViewById(R.id.J_cartaMagica3);
+
         fases_M = (TextView) findViewById(R.id.fases_M);
         fases_J = (TextView) findViewById(R.id.fases_J);
         manoJugador= findViewById(R.id.manoJugador);
-        inicializar();
+        inicializar(jugador);
+        for (Carta c:jugador.getMano())
+        {
+
+        }
 
         //Se define un boton con el ID y se crea una variable
         Button btnCambiarFase = findViewById(R.id.boton_cambiar_fase); //se agrega el boton con el ID
@@ -109,35 +123,34 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
 
     }
-    public void inicializar()
-    {
+    public void inicializar(Jugador j) {
         AssetManager am = this.getAssets();
-        try {
-            Deck deck= Deck.crearDeck(am);
-            ArrayList<Carta> cartas= deck.getCartas();
-            for(Carta c : cartas)
-            {
-                ImageView imv = new ImageView(this);
-                Resources resources = getResources();
-                int rid = resources.getIdentifier(c.getImagen(),"drawable",getPackageName());
-                imv.setImageResource(rid);
-                manoJugador.addView(imv);
-                //imv.getLayoutParams().width = LinearLayout.LayoutParams.WRAP_CONTENT;
-                imv.getLayoutParams().width = 250;
-                imv.setPadding(10,0,10,0);
-                imv.setScaleType(ImageView.ScaleType.FIT_XY);
-                imv.setOnClickListener(new View.OnClickListener() {
+
+        Deck deck = jugador.getDeck();
+        ArrayList<Carta> cartas = deck.getCartas();
+        for (Carta c : cartas) {
+            ImageView imv = new ImageView(this);
+            Resources resources = getResources();
+            int rid = resources.getIdentifier(c.getImagen(), "drawable", getPackageName());
+            imv.setImageResource(rid);
+            imagenesDeckJugador.add(imv);
+            //imv.getLayoutParams().width = LinearLayout.LayoutParams.WRAP_CONTENT;
+            imv.getLayoutParams().width = 250;
+            imv.setPadding(10, 0, 10, 0);
+            imv.setScaleType(ImageView.ScaleType.FIT_XY);
+                /*imv.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         mostrarDetallesCarta(c);
                     }
                 });
-            }
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+                 */
         }
     }
+
+
+
 
 
 }

@@ -1,5 +1,8 @@
 package ec.edu.espol.yugioh2;
 
+import android.content.Context;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Jugador {
@@ -9,9 +12,13 @@ public class Jugador {
     private Tablero tablero;
     private ArrayList<Carta> mano;
 
-    public Jugador(String nombre) {
+    public Jugador(String nombre, Context context) {
         this.nombre = nombre;
-        //deck = Deck.crearDeck("cartasCreadas.txt");
+        try{
+            deck = Deck.crearDeck(context.getAssets());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         puntos = 4000;
         tablero = new Tablero();
         mano = new ArrayList<>();
