@@ -21,7 +21,7 @@ public class Jugador {
         }
         puntos = 4000;
         tablero = new Tablero();
-        mano = null;
+        mano = new ArrayList<>();
     }
 
     // Getters y Setters

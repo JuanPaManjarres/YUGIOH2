@@ -430,47 +430,7 @@
         android:orientation="vertical"
         app:layout_constraintGuide_begin="20dp" />
 
-    <HorizontalScrollView
-        android:id="@+id/Scroll_2"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline19"
-        app:layout_constraintEnd_toStartOf="@+id/guideline14"
-        app:layout_constraintStart_toStartOf="@+id/guideline11"
-        app:layout_constraintTop_toTopOf="@+id/guideline2">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                android:src="@drawable/actor_del_abismo" />
-
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/barrera_infernica" />
-
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/bestia_de_cristal_avanzada_aguila_cobalto" />
-
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/caballero_del_destello" />
-
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/rey_bestia" />
-
-        </LinearLayout>
-    </HorizontalScrollView>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline19"

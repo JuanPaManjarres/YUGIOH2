@@ -23,7 +23,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private TextView fases_M;
     private TextView fases_J;
-    private Jugador jugador= new Jugador("Juan",this);
+    private Jugador jugador;
     private ImageView[][] tableroJugador= new ImageView[2][3];
     private LinearLayout manoJugador;
     private ArrayList<ImageView> imagenesDeckJugador= new ArrayList<>();
@@ -40,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        jugador= new Jugador("Juan",this);
+
 
         tableroJugador[0][0]= findViewById(R.id.J_cartaMonstruo1);
         tableroJugador[0][1]= findViewById(R.id.J_cartaMonstruo2);
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         fases_M = (TextView) findViewById(R.id.fases_M);
         fases_J = (TextView) findViewById(R.id.fases_J);
         manoJugador= findViewById(R.id.manoJugador);
-        crearImagenesdeck(jugador);
+
 
 
         //Se define un boton con el ID y se crea una variable
@@ -66,11 +68,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-
+        jugar();
 
     }
 
-    // Metodo para cambiar de fase
+
 
     private void cambiarFase(TextView j) {
         // Lógica para cambiar de fase
@@ -90,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-    public void mostrarDetallesCarta(Carta carta) {
+    public void detallesCartaMano(Carta carta) {
         // Crear el cuadro de diálogo
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Detalles de la Carta");
@@ -98,65 +100,157 @@ public class MainActivity extends AppCompatActivity {
         if (carta instanceof CartaMonstruo) {
             CartaMonstruo c = (CartaMonstruo) carta;
             builder.setMessage(c.toString());
+            builder.setPositiveButton("Ataque", (dialog, which) -> {
+                Toast.makeText(getApplicationContext(), "Carta colocada en Ataque", Toast.LENGTH_SHORT).show();
+                colocarEnTablero(carta, true, false);  // Carta en ataque
+            });
+
+            builder.setNegativeButton("Defensa", (dialog, which) -> {
+                Toast.makeText(getApplicationContext(), "Carta colocada en Defensa", Toast.LENGTH_SHORT).show();
+                colocarEnTablero(carta, true, true);  // Carta en defensa
+            });
+
+            builder.setNeutralButton("Cancelar", (dialog, which) -> dialog.dismiss());
+            builder.show();
         } else if (carta instanceof CartaMagica) {
             CartaMagica c = (CartaMagica) carta;
             builder.setMessage(c.toString());
+            builder.setPositiveButton("Colocar", (dialog, which) -> {
+                Toast.makeText(getApplicationContext(), "Carta colocada", Toast.LENGTH_SHORT).show();
+                // Coloca la carta en la fila de cartas mágicas o trampas
+                colocarEnTablero(carta, false, false);  // Falso para defensa, porque no aplica
+            });
+            builder.setNeutralButton("Cancelar", (dialog, which) -> dialog.dismiss());
+            builder.show();
         } else if (carta instanceof CartaTrampa) {
-            CartaTrampa c = (CartaTrampa) carta;
+            CartaTrampa c = (CartaTrampa) carta;  // Asegurándote de que sea una instancia de CartaTrampa
             builder.setMessage(c.toString());
+            builder.setPositiveButton("Colocar", (dialog, which) -> {
+                Toast.makeText(getApplicationContext(), "Carta colocada", Toast.LENGTH_SHORT).show();
+                // Coloca la carta en la fila de cartas mágicas o trampas
+                colocarEnTablero(carta, false, false);  // Falso para defensa, porque no aplica
+            });
+            builder.setNeutralButton("Cancelar", (dialog, which) -> dialog.dismiss());
+            builder.show();
         }
-        // Botones del cuadro de diálogo
-        builder.setPositiveButton("Ataque", (dialog, which) -> {
-            Toast.makeText(getApplicationContext(), "Carta colocada en Ataque", Toast.LENGTH_SHORT).show();
-            // Aquí puedes agregar la lógica para poner la carta en ataque (guardar el estado, etc.)
-        });
-
-        builder.setNegativeButton("Defensa", (dialog, which) -> {
-            Toast.makeText(getApplicationContext(), "Carta colocada en Defensa", Toast.LENGTH_SHORT).show();
-            // Aquí puedes agregar la lógica para poner la carta en defensa (guardar el estado, etc.)
-        });
-
-        builder.setNeutralButton("Cancelar", (dialog, which) -> dialog.dismiss());
-        builder.show();
-
     }
-    public void crearImagenesdeck(Jugador j) {
 
+    public ImageView crearImagenesdeck(Carta c) {
+        // Crear el ImageView
+        ImageView imv = new ImageView(this);
 
-        Deck deck = jugador.getDeck();
-        ArrayList<Carta> cartas = deck.getCartas();
-        for (Carta c : cartas) {
-            ImageView imv = new ImageView(this);
-            Resources resources = getResources();
-            int rid = resources.getIdentifier(c.getImagen(), "drawable", getPackageName());
+        // Configurar la imagen desde los recursos
+        Resources resources = getResources();
+        int rid = resources.getIdentifier(c.getImagen(), "drawable", getPackageName());
+        if (rid != 0) { // Verificar si el recurso existe
             imv.setImageResource(rid);
-            imagenesDeckJugador.add(imv);
-            //imv.getLayoutParams().width = LinearLayout.LayoutParams.WRAP_CONTENT;
-            imv.getLayoutParams().width = 250;
-            imv.setPadding(10, 0, 10, 0);
-            imv.setScaleType(ImageView.ScaleType.FIT_XY);
-                /*imv.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mostrarDetallesCarta(c);
-                    }
-                });
-
-                 */
+        } else {
+            // Establecer una imagen predeterminada en caso de error
+            imv.setImageResource(R.drawable.no_hay_carta);
         }
+
+        // Configurar los LayoutParams
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                250, // Ancho en píxeles
+                LinearLayout.LayoutParams.WRAP_CONTENT // Alto automático
+        );
+        params.setMargins(10, 0, 10, 0); // Añadir margen
+        imv.setLayoutParams(params);
+
+        // Configurar propiedades adicionales
+        imv.setScaleType(ImageView.ScaleType.FIT_XY);
+        imv.setPadding(10, 0, 10, 0);
+
+        // Agregar una descripción accesible
+        imv.setContentDescription("Imagen de la carta: " + c.getNombre());
+
+        // Añadir a la lista de imágenes del deck del jugador
+        imagenesDeckJugador.add(imv);
+
+        return imv;
     }
-    public void inicializar()
+    public void inicializarDeck(Jugador j)
     {
         for (int i = 0; i < 5; i++) {
-        if (!jugador.getDeck().getCartas().isEmpty()) {
-            Carta carta = jugador.getDeck().getCartas().get(0);
-            jugador.getMano().add(carta);
-            jugador.getDeck().getCartas().remove(carta);
+            if (!j.getDeck().getCartas().isEmpty()) {
+                Carta carta = j.getDeck().getCartas().get(0);
+                j.getMano().add(carta);
+                ImageView imv= crearImagenesdeck(carta);
+                imv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        detallesCartaMano(carta);
+                    }
+                });
+                if(j instanceof Jugador)
+                    manoJugador.addView(imv);
+                j.getDeck().getCartas().remove(carta);
+            }
+
         }
-        manoJugador.addView(imagenesDeckJugador.get(i));
-        imagenesDeckJugador.remove(i);
     }
+
+    private void colocarEnTablero(Carta carta, boolean esMonstruo, boolean enDefensa) {
+        int fila = -1;
+
+        // Si la carta es de monstruo, coloca en la fila 0
+        if (esMonstruo) {
+            fila = 0;  // Fila de cartas de monstruo
+        }
+        // Si la carta es mágica o trampa, coloca en la fila 1
+        else if (carta instanceof CartaMagica || carta instanceof CartaTrampa) {
+            fila = 1;  // Fila de cartas mágicas/trampas
+        }
+
+        // Si la fila no es válida, no se puede colocar la carta
+        if (fila == -1) {
+            Toast.makeText(this, "Tipo de carta no válida", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        for (int columna = 0; columna < tableroJugador[fila].length; columna++) {
+            // Verificar si la carta en la posición del tablero es "no_hay_carta"
+            if (tableroJugador[fila][columna].getDrawable() != null) {
+                // Verificar si es la imagen de "no_hay_carta"
+                if (tableroJugador[fila][columna].getDrawable().getConstantState().equals(getResources().getDrawable(R.drawable.no_hay_carta).getConstantState())) {
+                    // Si es una carta de monstruo y está en defensa, poner boca abajo
+                    if (esMonstruo && enDefensa) {
+                        tableroJugador[fila][columna].setImageResource(R.drawable.carta_abajo);
+                    } else {
+                        // Si es una carta mágica o trampa, ponerla boca arriba
+                        Resources resources = getResources();
+                        int rid = resources.getIdentifier(carta.getImagen(), "drawable", getPackageName());
+                        if (rid != 0) {
+                            tableroJugador[fila][columna].setImageResource(rid);
+                        } else {
+                            tableroJugador[fila][columna].setImageResource(R.drawable.no_hay_carta);
+                        }
+                    }
+
+                    // Remover la carta de la mano del jugador
+                    manoJugador.removeView(imagenesDeckJugador.get(jugador.getMano().indexOf(carta)));
+                    jugador.getMano().remove(carta);  // Asegurarse de que la carta se elimine de la mano
+
+                    // Mostrar mensaje de éxito
+                    Toast.makeText(this, "Carta colocada en el tablero", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+        }
+
+        // Si no hay espacio disponible en la fila
+        Toast.makeText(this, "No hay espacio disponible en esta sección del tablero", Toast.LENGTH_SHORT).show();
     }
+
+    public void jugar()
+    {
+        inicializarDeck(jugador);
+
+
+
+    }
+
+
 
 
 
