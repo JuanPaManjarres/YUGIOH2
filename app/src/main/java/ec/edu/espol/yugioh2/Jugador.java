@@ -21,14 +21,7 @@ public class Jugador {
         }
         puntos = 4000;
         tablero = new Tablero();
-        mano = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            if (!deck.getCartas().isEmpty()) {
-                Carta carta = deck.getCartas().get(0);
-                mano.add(carta);
-                deck.getCartas().remove(carta);
-            }
-        }
+        mano = null;
     }
 
     // Getters y Setters
@@ -44,6 +37,7 @@ public class Jugador {
         else
             this.puntos = 0;
     }
+    public void setMano(ArrayList<Carta> mano){this.mano= mano;}
     public ArrayList<Carta> getMano() {
         return mano;
     }

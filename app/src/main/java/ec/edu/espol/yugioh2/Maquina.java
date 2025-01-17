@@ -1,11 +1,13 @@
 package ec.edu.espol.yugioh2;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 
 public class Maquina extends Jugador {
 
-    public Maquina(){
-        super("Maquina");
+    public Maquina(Context context){
+        super("Maquina",context);
     }
 
     //Funciones de la maquina para agregar y ordenar

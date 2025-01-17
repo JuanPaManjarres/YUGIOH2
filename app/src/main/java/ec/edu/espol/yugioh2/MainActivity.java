@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout manoJugador;
     private ArrayList<ImageView> imagenesDeckJugador= new ArrayList<>();
 
-    private Deck deck;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,11 +51,8 @@ public class MainActivity extends AppCompatActivity {
         fases_M = (TextView) findViewById(R.id.fases_M);
         fases_J = (TextView) findViewById(R.id.fases_J);
         manoJugador= findViewById(R.id.manoJugador);
-        inicializar(jugador);
-        for (Carta c:jugador.getMano())
-        {
+        crearImagenesdeck(jugador);
 
-        }
 
         //Se define un boton con el ID y se crea una variable
         Button btnCambiarFase = findViewById(R.id.boton_cambiar_fase); //se agrega el boton con el ID
@@ -123,8 +120,8 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
 
     }
-    public void inicializar(Jugador j) {
-        AssetManager am = this.getAssets();
+    public void crearImagenesdeck(Jugador j) {
+
 
         Deck deck = jugador.getDeck();
         ArrayList<Carta> cartas = deck.getCartas();
@@ -147,6 +144,18 @@ public class MainActivity extends AppCompatActivity {
 
                  */
         }
+    }
+    public void inicializar()
+    {
+        for (int i = 0; i < 5; i++) {
+        if (!jugador.getDeck().getCartas().isEmpty()) {
+            Carta carta = jugador.getDeck().getCartas().get(0);
+            jugador.getMano().add(carta);
+            jugador.getDeck().getCartas().remove(carta);
+        }
+        manoJugador.addView(imagenesDeckJugador.get(i));
+        imagenesDeckJugador.remove(i);
+    }
     }
 
 

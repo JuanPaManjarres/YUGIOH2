@@ -1,13 +1,21 @@
 package ec.edu.espol.yugioh2;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 
 public class Juego {
     private Maquina maquina;
     private Jugador jugador;
-    public Juego(Maquina maquina, Jugador jugador){
-        this.maquina= maquina;
+    private Context context;
+
+    public Juego (Context context){
+        this.context = context;
+    }
+    public Juego(Jugador jugador, Context context){
+        maquina= new Maquina(context);
         this.jugador= jugador;
+        this.context = context;
     }
     public static void batallaDirecta(CartaMonstruo monstruoAtacante, Jugador oponente){
         int puntos = oponente.getPuntos() - monstruoAtacante.getAtaque();
