@@ -268,17 +268,6 @@
         app:layout_constraintVertical_bias="0.7" />
 
     <TextView
-        android:id="@+id/textView7"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Turno: 0"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toTopOf="@+id/guideline17"
-        app:layout_constraintEnd_toStartOf="@+id/guideline26"
-        app:layout_constraintStart_toStartOf="@+id/guideline25"
-        app:layout_constraintTop_toTopOf="@+id/guideline18" />
-
-    <TextView
         android:id="@+id/fases_M"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -288,17 +277,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline13"
         app:layout_constraintTop_toTopOf="@+id/guideline15" />
-
-    <TextView
-        android:id="@+id/fases_J"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Fase Tomar Carta"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toTopOf="@+id/guideline17"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline13"
-        app:layout_constraintTop_toTopOf="@+id/guideline18" />
 
     <HorizontalScrollView
         android:id="@+id/J_mano"

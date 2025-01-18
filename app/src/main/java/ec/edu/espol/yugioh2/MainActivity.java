@@ -20,8 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView fases_M;
-    private TextView fases_J;
+    private TextView fases;
     private TextView vidaJugador;
     private TextView turno;
     private LinearLayout manoJugador;
@@ -51,8 +50,8 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        fases_M = (TextView) findViewById(R.id.fases_M);
-        fases_J = (TextView) findViewById(R.id.fases_J);
+        fases = (TextView) findViewById(R.id.fases_M);
+
 
         manoJugador= findViewById(R.id.manoJugador);
         magicasJ = findViewById(R.id.magicasJ); // cambie monstruoJ por magicaJ incluso en la funcion del tablero
@@ -87,8 +86,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Aquí va la lógica para cambiar de fase
-                cambiarFase(fases_J);
-                cambiarFase(fases_M);
+                cambiarFase(fases);
+
             }
 
         });
@@ -96,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void fases(){
-        if (fases_J.getText().toString().equals("Fase Tomar Carta"))
+        if (fases.getText().toString().equals("Fase Tomar Carta"))
             inicializar();
 
     }
