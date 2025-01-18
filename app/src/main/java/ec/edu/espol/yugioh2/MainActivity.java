@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.media.Image;
+import android.media.session.MediaSession;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -24,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView fases_M;
     private TextView fases_J;
     private Jugador jugador;
+    private Jugador maquina;
+    private LinearLayout manoMaquina;
     private ImageView[][] tableroJugador= new ImageView[2][3];
     private LinearLayout manoJugador;
     private ArrayList<ImageView> imagenesDeckJugador= new ArrayList<>();
@@ -41,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
         jugador= new Jugador("Juan",this);
-
+        maquina= new Maquina(this);
 
         tableroJugador[0][0]= findViewById(R.id.J_cartaMonstruo1);
         tableroJugador[0][1]= findViewById(R.id.J_cartaMonstruo2);
@@ -53,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         fases_M = (TextView) findViewById(R.id.fases_M);
         fases_J = (TextView) findViewById(R.id.fases_J);
         manoJugador= findViewById(R.id.manoJugador);
+        manoMaquina= findViewById(R.id.manoMaquina);
+
 
 
 
@@ -102,12 +107,12 @@ public class MainActivity extends AppCompatActivity {
             builder.setMessage(c.toString());
             builder.setPositiveButton("Ataque", (dialog, which) -> {
                 Toast.makeText(getApplicationContext(), "Carta colocada en Ataque", Toast.LENGTH_SHORT).show();
-                colocarEnTablero(carta, true, false);  // Carta en ataque
+                colocarEnTablero(carta, 1);  // Carta en ataque
             });
 
             builder.setNegativeButton("Defensa", (dialog, which) -> {
                 Toast.makeText(getApplicationContext(), "Carta colocada en Defensa", Toast.LENGTH_SHORT).show();
-                colocarEnTablero(carta, true, true);  // Carta en defensa
+                colocarEnTablero(carta, 2);  // Carta en defensa
             });
 
             builder.setNeutralButton("Cancelar", (dialog, which) -> dialog.dismiss());
@@ -118,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
             builder.setPositiveButton("Colocar", (dialog, which) -> {
                 Toast.makeText(getApplicationContext(), "Carta colocada", Toast.LENGTH_SHORT).show();
                 // Coloca la carta en la fila de cartas mágicas o trampas
-                colocarEnTablero(carta, false, false);  // Falso para defensa, porque no aplica
+                colocarEnTablero(carta, 3);  // Falso para defensa, porque no aplica
             });
             builder.setNeutralButton("Cancelar", (dialog, which) -> dialog.dismiss());
             builder.show();
@@ -128,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
             builder.setPositiveButton("Colocar", (dialog, which) -> {
                 Toast.makeText(getApplicationContext(), "Carta colocada", Toast.LENGTH_SHORT).show();
                 // Coloca la carta en la fila de cartas mágicas o trampas
-                colocarEnTablero(carta, false, false);  // Falso para defensa, porque no aplica
+                colocarEnTablero(carta, 4);  // Falso para defensa, porque no aplica
             });
             builder.setNeutralButton("Cancelar", (dialog, which) -> dialog.dismiss());
             builder.show();
@@ -169,36 +174,43 @@ public class MainActivity extends AppCompatActivity {
 
         return imv;
     }
+    //inicializa el deck de cualquiera de los jugadores
     public void inicializarDeck(Jugador j)
     {
         for (int i = 0; i < 5; i++) {
             if (!j.getDeck().getCartas().isEmpty()) {
                 Carta carta = j.getDeck().getCartas().get(0);
                 j.getMano().add(carta);
-                ImageView imv= crearImagenesdeck(carta);
-                imv.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        detallesCartaMano(carta);
-                    }
-                });
-                if(j instanceof Jugador)
-                    manoJugador.addView(imv);
+                agregarImagenMano(carta,j);
                 j.getDeck().getCartas().remove(carta);
             }
 
         }
     }
+    //agregarImagenMano agrega la imagen a la mano del scroll del jugador o maquina
+    public void agregarImagenMano(Carta c,Jugador j)
+    {
+        ImageView imv= crearImagenesdeck(c);
+        imv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                detallesCartaMano(c);
+            }
+        });
+        if (j instanceof Maquina)
+            manoMaquina.addView(imv);
+        else
+            manoJugador.addView(imv);
+    }
 
-    private void colocarEnTablero(Carta carta, boolean esMonstruo, boolean enDefensa) {
+
+    private void colocarEnTablero(Carta carta, int tipoCarta) {
         int fila = -1;
 
-        // Si la carta es de monstruo, coloca en la fila 0
-        if (esMonstruo) {
+        // Determinamos la fila de acuerdo al tipo de carta
+        if (tipoCarta == 1 || tipoCarta == 2) {  // Carta de monstruo
             fila = 0;  // Fila de cartas de monstruo
-        }
-        // Si la carta es mágica o trampa, coloca en la fila 1
-        else if (carta instanceof CartaMagica || carta instanceof CartaTrampa) {
+        } else if (tipoCarta == 3 || tipoCarta == 4) {  // Carta mágica o trampa
             fila = 1;  // Fila de cartas mágicas/trampas
         }
 
@@ -213,11 +225,23 @@ public class MainActivity extends AppCompatActivity {
             if (tableroJugador[fila][columna].getDrawable() != null) {
                 // Verificar si es la imagen de "no_hay_carta"
                 if (tableroJugador[fila][columna].getDrawable().getConstantState().equals(getResources().getDrawable(R.drawable.no_hay_carta).getConstantState())) {
-                    // Si es una carta de monstruo y está en defensa, poner boca abajo
-                    if (esMonstruo && enDefensa) {
-                        tableroJugador[fila][columna].setImageResource(R.drawable.carta_abajo);
-                    } else {
-                        // Si es una carta mágica o trampa, ponerla boca arriba
+                    // Si es una carta de monstruo y tipo 1 (ataque) o tipo 2 (defensa)
+                    if (tipoCarta == 1) {
+                        // Carta en ataque
+                        Resources resources = getResources();
+                        int rid = resources.getIdentifier(carta.getImagen(), "drawable", getPackageName());
+                        if (rid != 0) {
+                            tableroJugador[fila][columna].setImageResource(rid);
+                            jugador.agregarCartaTablero(carta,fila,columna);
+                        } else {
+                            tableroJugador[fila][columna].setImageResource(R.drawable.no_hay_carta);
+                        }
+                        // Aquí, podrías colocar la carta en ataque en el tablero
+                    } else if (tipoCarta == 2) {
+                        // Carta en defensa
+                        tableroJugador[fila][columna].setImageResource(R.drawable.carta_abajo); // Imagen de carta boca abajo para defensa
+                    } else if (tipoCarta == 3 || tipoCarta == 4) {
+                        // Carta mágica o trampa
                         Resources resources = getResources();
                         int rid = resources.getIdentifier(carta.getImagen(), "drawable", getPackageName());
                         if (rid != 0) {
@@ -245,6 +269,8 @@ public class MainActivity extends AppCompatActivity {
     public void jugar()
     {
         inicializarDeck(jugador);
+        inicializarDeck(maquina);
+
 
 
 

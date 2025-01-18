@@ -79,29 +79,35 @@ public class Jugador {
         return mano.get(indice);
     }
 
-    public String agregarCartaTablero(int indice, String pos) {
-        Carta carta = mano.get(indice);
+    public void agregarCartaTablero(Carta carta, int fila, int columna) {
+        // Si la carta es de tipo monstruo
         if (carta instanceof CartaMonstruo) {
+            // Verificar si hay espacio para cartas de monstruo
             if (tablero.getCartasMons().size() < 3) {
-                if (pos.equals("1")) {
-                    ((CartaMonstruo) carta).modoAtaque();
+                // Si la fila es 1, la carta va en modo ataque, si no en defensa
+                if (fila == 1) {
+                    ((CartaMonstruo) carta).modoAtaque();  // Modo ataque
                 } else {
-                    ((CartaMonstruo) carta).modoDefensa();
+                    ((CartaMonstruo) carta).modoDefensa();  // Modo defensa
                 }
-                CartaMonstruo c1 = (CartaMonstruo) carta;
-                tablero.getCartasMons().add(c1);
-                mano.remove(indice);
-                return "Se ha agregado la carta monstruo al tablero \n" + carta;
-            } else {
-                return "Espacio para carta tipo Monstruo lleno en el tablero";
+
+                // Coloca la carta de monstruo en el tablero en la posición indicada
+                tablero.getCartasMons().add((CartaMonstruo) carta);
+
+                // Elimina la carta de la mano
+                mano.remove(carta);
+
             }
+
         } else {
+            // Si la carta es de tipo especial (mágica o trampa)
             if (tablero.getEspeciales().size() < 3) {
+                // Coloca la carta especial en el tablero en la posición indicada
                 tablero.getEspeciales().add(carta);
-                mano.remove(indice);
-                return "Se ha agregado la carta especial al tablero \n" + carta;
-            } else {
-                return "Espacio para cartas tipo Magica o Trampa lleno en el tablero";
+
+                // Elimina la carta de la mano
+                mano.remove(carta);
+
             }
         }
     }
