@@ -608,6 +608,10 @@ public class Utilitaria {
     public static void selecOponente(Context context, ArrayList<CartaMonstruo> cartasOponente, LinearLayout layoutOponente, LinearLayout layoutAtacante,
                                      Jugador atacante, Jugador oponente, CartaMonstruo cartaAtacante) {
 
+        // Obtener el ID de la imagen "no_hay_carta"
+        int noHayCartaId = context.getResources().getIdentifier("no_hay_carta", "drawable", context.getPackageName());
+        Drawable noHayCartaDrawable = context.getResources().getDrawable(noHayCartaId);
+
         // TENGO LA CARTA ATACANTE
         for (int i = 0; i < layoutOponente.getChildCount(); i++) {
             ImageView cartaOponenteView = (ImageView) layoutOponente.getChildAt(i);
@@ -623,6 +627,17 @@ public class Utilitaria {
                 // Verificar si se está tocando un espacio del layoutOponente
                 if (!layoutOponente.equals(oponenteView.getParent())) {
                     Toast.makeText(context, "No se puede atacar ahí. Seleccione un espacio válido.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Verificar si la imagen es "no_hay_carta"
+                Drawable currentDrawable = cartaOponenteView.getDrawable();
+                if (currentDrawable != null && currentDrawable.getConstantState().equals(noHayCartaDrawable.getConstantState())) {
+                    Toast.makeText(context, "No hay cartas en ese espacio.", Toast.LENGTH_SHORT).show();
+                    // DESHABILITAR CLICK LISTENER DESPUÉS DE QUE NO HAYA CARTA
+                    for (int j = 0; j < layoutOponente.getChildCount(); j++) {
+                        layoutOponente.getChildAt(j).setOnClickListener(null);
+                    }
                     return;
                 }
 
