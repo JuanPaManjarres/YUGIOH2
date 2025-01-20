@@ -647,9 +647,20 @@ public class Utilitaria {
                 if (c != null) {
                     if (c instanceof CartaMonstruo) {
                         CartaMonstruo cartaOponente = (CartaMonstruo) c;
-                        String resultado = Juego.declararBatalla(cartaOponente, cartaAtacante, oponente, atacante, context, layoutOponente, layoutAtacante);
-                        crearDialogs(context, "JUGADORES", resultado, "OK");
 
+                        ArrayList<CartaTrampa> trampas = new ArrayList<>();
+                        String resultadoTrampas = Juego.usarTrampas(oponente, cartaAtacante, trampas, context, layoutOponente);
+
+                        // Mostrar el resultado de las trampas si se activaron
+                        if (!trampas.isEmpty()) {
+                            crearDialogs(context, "Trampas activadas", resultadoTrampas, "OK");
+                        }
+
+                        if (trampas.isEmpty()) {
+                            // Declarar la batalla
+                            String resultado = Juego.declararBatalla(cartaOponente, cartaAtacante, oponente, atacante, context, layoutOponente, layoutAtacante);
+                            crearDialogs(context, "JUGADORES", resultado, "OK");
+                        }
                         // DESHABILITAR CLICK LISTENER DESPUÉS DEL ATAQUE
                         for (int j = 0; j < layoutOponente.getChildCount(); j++) {
                             layoutOponente.getChildAt(j).setOnClickListener(null);
@@ -695,31 +706,6 @@ public class Utilitaria {
             });
         }
     }
-
-    private static void fasesDialogBatalla(Context context,
-                                           CartaMonstruo cartaAtacante, String fase, ImageView imageView,
-                                           ImageView[] currentSelectedCard, LinearLayout layoutOponente,
-                                           ArrayList<CartaMonstruo> cartasOponente, Jugador atacante, Jugador oponente) {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Detalles de la Carta");
-        builder.setMessage(cartaAtacante.toString());
-
-        if ("Fase Batalla".equals(fase)) {
-            builder.setPositiveButton("Declarar Batalla", (dialog, which) -> {
-                // Seleccionar carta oponente tras confirmar ataque
-                currentSelectedCard[0] = imageView;
-                Toast.makeText(context, "Selecciona una carta oponente para atacar.", Toast.LENGTH_SHORT).show();
-            });
-
-            builder.setNeutralButton("Cancelar", (dialog, which) -> dialog.dismiss());
-        }
-
-        builder.show();
-
-    }
-
-
 
 
 }

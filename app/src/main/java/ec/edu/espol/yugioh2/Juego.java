@@ -97,8 +97,9 @@ public class Juego {
                 Utilitaria.noHayCarta(context,especialesJ,especial);
                 resultado.append("Se usó una carta trampa: ").append(especial).append("\n");
             }
-            else
-                resultado.append("");
+        }
+        if (trampas.isEmpty()) {
+            resultado.append("No hay trampas para usar");
         }
         j.getTablero().getEspeciales().removeAll(cartasParaEliminar);
         return resultado.toString();
