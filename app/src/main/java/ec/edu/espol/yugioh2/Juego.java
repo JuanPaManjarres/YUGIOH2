@@ -86,17 +86,21 @@ public class Juego {
                "Tablero de " + oponente.getNombre() + ": " + oponente.getTablero().toString() + "\n";
     }
 
-    public static String usarTrampas(Jugador j, CartaMonstruo monsM,ArrayList<CartaTrampa> trampas){
+    public static String usarTrampas(Jugador j, CartaMonstruo monsM,ArrayList<CartaTrampa> trampas, Context context, LinearLayout especialesJ){
         StringBuilder resultado = new StringBuilder();
+        ArrayList<Carta> cartasParaEliminar = new ArrayList<>();
+
         for (Carta especial: j.getTablero().getEspeciales()){
             if ((especial instanceof CartaTrampa) && (((CartaTrampa) especial).usar(monsM))) {
                 trampas.add((CartaTrampa) especial);
-                j.getTablero().getEspeciales().remove(especial);
+                cartasParaEliminar.add(especial);
+                Utilitaria.noHayCarta(context,especialesJ,especial);
                 resultado.append("Se usó una carta trampa: ").append(especial).append("\n");
             }
             else
                 resultado.append("");
         }
+        j.getTablero().getEspeciales().removeAll(cartasParaEliminar);
         return resultado.toString();
     }
 
@@ -109,7 +113,38 @@ public class Juego {
         //Buscar la imagen con ese nombre y colocarlo en el LinearLayout de la mano
         //Tiene que agregarse la carta a la mano visualmente
     }
+    public String mBatalla(Jugador jugador,LinearLayout layoutMaquina,LinearLayout layoutJugador, LinearLayout especialesJ) {
+        ArrayList<CartaMonstruo> monstruosJ = new ArrayList<>();
+        ArrayList<Carta> usadas = new ArrayList<>();
+        ArrayList<CartaTrampa> trampas = new ArrayList<>();
 
+        StringBuilder resultado = new StringBuilder();
+
+        for (CartaMonstruo monstruoJ: jugador.getTablero().getCartasMons())
+            if (monstruoJ.eModoAtaque())
+                monstruosJ.add(monstruoJ);
+
+        for (CartaMonstruo monsM: maquina.getTablero().getCartasMons()){
+            if (!usadas.contains(monsM) && (monsM.eModoAtaque())){
+                resultado.append(Juego.usarTrampas(jugador, monsM, trampas,context,especialesJ));
+
+                if (trampas.isEmpty()){
+                    if (monstruosJ.isEmpty()){
+                        Juego.batallaDirecta(monsM,jugador);
+                    }
+                    else {
+                        for (CartaMonstruo monsJ: monstruosJ){
+                            if (monsM.getAtaque() > monsJ.getAtaque()||monsM.getAtaque() > monsJ.getDefensa()||monsM.getDefensa() < monsJ.getAtaque()||monsM.getAtaque() == monsJ.getAtaque()){
+                                usadas.add(monsM);
+                                resultado.append(Juego.declararBatalla(monsJ,monsM,jugador,maquina,context,layoutJugador,layoutMaquina)).append("\n");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return resultado.toString();
+    }
 
 
     public void jugar(LinearLayout manoJ, LinearLayout manoM, LinearLayout monstruosJ, LinearLayout monstruosM, LinearLayout especialesJ,LinearLayout especialesM) {
@@ -175,6 +210,17 @@ public class Juego {
 
 
         if (fase.equals("Fase Tomar Carta")) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle("Jugadores");
+            builder.setMessage(jugador.toString()+"\n"+maquina.toString());
+
+            // Botón "OK" para cerrar el diálogo
+            builder.setPositiveButton("OK", (dialog, which) -> {
+                dialog.dismiss(); // Cierra el cuadro de diálogo
+            });
+
+            // Mostrar el AlertDialog
+            builder.show();
 
             if (turno==1){
                 for (Carta c : jugador.getMano()) {
@@ -234,8 +280,9 @@ public class Juego {
                 builder.show();
                 turno+=1;
             }else {
-                //faseBatalla(monstruosJ,monstruosM,jugador.getTablero().getCartasMons(),maquina.getTablero().getCartasMons(),jugador,maquina);
+                this.mBatalla(jugador,monstruosM,monstruosJ,especialesJ);
                 Utilitaria.mostrarDetallesbatalla(context, monstruosJ,monstruosM,especialesJ,especialesM,jugador.getTablero().getCartasMons(),jugador.getTablero().getEspeciales(),maquina.getTablero().getCartasMons(),maquina.getTablero().getEspeciales(),jugador,maquina);
+
                 turno++;
             }
 

@@ -1,6 +1,7 @@
 package ec.edu.espol.yugioh2;
 
 import android.content.Context;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
@@ -111,37 +112,5 @@ public class Maquina extends Jugador {
             }
         }
     
-    }
-    
-    public String mBatalla(Jugador jugador) {
-        ArrayList<CartaMonstruo> monstruosJ = new ArrayList<>();
-        ArrayList<Carta> usadas = new ArrayList<>();
-        ArrayList<CartaTrampa> trampas = new ArrayList<>();
-        StringBuilder resultado = new StringBuilder(); 
-
-        for (CartaMonstruo monstruoJ: jugador.getTablero().getCartasMons())
-            if (monstruoJ.eModoAtaque())
-                monstruosJ.add(monstruoJ);
-            
-        for (CartaMonstruo monsM: getTablero().getCartasMons()){
-            if (!usadas.contains(monsM) && (monsM.eModoAtaque())){
-                resultado.append(Juego.usarTrampas(jugador, monsM, trampas));
-
-                if (trampas.isEmpty()){
-                    if (monstruosJ.isEmpty()){
-                        Juego.batallaDirecta(monsM,jugador);
-                    }
-                    else {
-                        for (CartaMonstruo monsJ: monstruosJ){
-                            if (monsM.getAtaque() > monsJ.getAtaque()||monsM.getAtaque() > monsJ.getDefensa()||monsM.getDefensa() < monsJ.getAtaque()||monsM.getAtaque() == monsJ.getAtaque()){
-                                usadas.add(monsM);
-                                //Fresultado.append(Juego.declararBatalla(monsJ, monsM, jugador, this)).append("\n");
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return resultado.toString();  
     }
 }
