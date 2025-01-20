@@ -35,17 +35,10 @@ public class Tablero {
 
     public void removerCarta(Carta c) {
         if (c instanceof CartaMonstruo) {
-            CartaMonstruo c1 = (CartaMonstruo) c;
-            int index = cartasMons.indexOf(c1);
-            if (index != -1) {
-                cartasMons.set(index, null);  // Reemplaza la carta por null
-            }
+            cartasMons.remove(c);
         }
         if ((c instanceof CartaMagica) || (c instanceof CartaTrampa)) {
-            int index = especiales.indexOf(c);
-            if (index != -1) {
-                especiales.set(index, null);  // Reemplaza la carta por null
-            }
+            especiales.remove(c);
         }
     }
 
