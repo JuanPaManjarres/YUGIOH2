@@ -118,20 +118,28 @@ public class Juego {
         ArrayList<Carta> especiales = maquina.getTablero().getEspeciales();
         ArrayList<CartaMonstruo> monstruos = maquina.getTablero().getCartasMons();
         ArrayList<Carta> usadas = new ArrayList<>();
+        String mensajefinal= "";
 
         for (Carta carta: especiales){
             if (!usadas.contains(carta)){
                 for (CartaMonstruo monstruo: monstruos){
                     if (carta instanceof CartaMagica){
                         ((CartaMagica) carta).usar(monstruo,maquina);
-                        usadas.add(carta);
+
                     }
                 }
+                if (carta instanceof CartaMagica)
+                    usadas.add(carta);
             }
         }
-        for (Carta carta: usadas)
+        for (Carta carta: usadas) {
             Utilitaria.noHayCarta(context, especialesM, carta);
+            maquina.getTablero().removerCarta(carta);
+            mensajefinal+= carta.toString()+"\n";
+        }
         especiales.removeAll(usadas);
+        if(usadas.size()>0)
+            Utilitaria.crearDialogs(context,"Maquina uso las cartas:",mensajefinal,"Maquina uso todas sus cartas magicas");
 
     }
 
@@ -233,17 +241,7 @@ public class Juego {
 
 
         if (fase.equals("Fase Tomar Carta")) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle("Jugadores");
-            builder.setMessage(jugador.toString()+"\n"+maquina.toString());
 
-            // Botón "OK" para cerrar el diálogo
-            builder.setPositiveButton("OK", (dialog, which) -> {
-                dialog.dismiss(); // Cierra el cuadro de diálogo
-            });
-
-            // Mostrar el AlertDialog
-            builder.show();
 
             if (turno==1){
                 for (Carta c : jugador.getMano()) {
@@ -252,7 +250,17 @@ public class Juego {
                 for (Carta c : maquina.getMano()) {
                     Utilitaria.crearyAgregar(context, c, manoM);
                 }
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Comienza el juego!");
+                builder.setMessage("La "+ maquina.getNombre()+" jugara contra "+jugador.getNombre());
 
+                // Botón "OK" para cerrar el diálogo
+                builder.setPositiveButton("OK", (dialog, which) -> {
+                    dialog.dismiss(); // Cierra el cuadro de diálogo
+                });
+
+                // Mostrar el AlertDialog
+                builder.show();
 
             }
             //Se coloquen las cartas de la mano del jugador y de la maquina en el linearLayout

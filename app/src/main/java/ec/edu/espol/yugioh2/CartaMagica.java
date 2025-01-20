@@ -33,7 +33,6 @@ public class CartaMagica extends Carta{
                 int nuevaDefensa = cartaMonstruo.getDefensa() + this.defensa;
                 cartaMonstruo.setDefensa(nuevaDefensa);
             }
-            jugador.getTablero().removerCarta(this);
             return toString();
         } else {
             return "No se puede usar, no son del mismo tipo de Monstruo";
