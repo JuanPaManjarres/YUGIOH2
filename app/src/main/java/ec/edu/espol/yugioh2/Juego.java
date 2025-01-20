@@ -27,6 +27,9 @@ public class Juego {
         this.jugador= jugador;
         this.context = context;
     }
+    public String getJugador(){return jugador.getNombre();}
+    public String getMaquina(){return maquina.getNombre();}
+
 
     public void setFase(String nuevaFase, LinearLayout manoJ, LinearLayout manoM,
                         LinearLayout monstruosJ, LinearLayout monstruosM,
@@ -35,22 +38,27 @@ public class Juego {
         // Llama automáticamente a la función prueba cuando se actualiza la fase
         prueba(manoJ, manoM, monstruosJ, monstruosM, especialesJ, especialesM,turnosView,vidaJView,vidaMView);
     }
-    public static void batallaDirecta(CartaMonstruo monstruoAtacante, Jugador oponente){
+    public static void batallaDirecta(CartaMonstruo monstruoAtacante, Jugador oponente,TextView vidaJugador){
         int puntos = oponente.getPuntos() - monstruoAtacante.getAtaque();
         oponente.setPuntos(puntos);
+        vidaJugador.setText("LP de "+oponente.getNombre()+": "+oponente.getPuntos());
     }
 
 
-    public static String declararBatalla(CartaMonstruo cartaOponente, CartaMonstruo cartaAtacante, Jugador oponente, Jugador atacante, Context context,LinearLayout monstruoO,LinearLayout monstruoA) {
+    public static String declararBatalla(CartaMonstruo cartaOponente, CartaMonstruo cartaAtacante, Jugador oponente, Jugador atacante, Context context,LinearLayout monstruoO,LinearLayout monstruoA,TextView vidaJugador,TextView vidaMaquina) {
         // Ambas cartas en modo ataque
         if (cartaOponente.eModoAtaque() && cartaAtacante.eModoAtaque()) {
             if (cartaOponente.getAtaque() < cartaAtacante.getAtaque()) {
                 int diferencia = cartaOponente.getAtaque() - cartaAtacante.getAtaque();
                 int puntos = oponente.getPuntos() - Math.abs(diferencia);
                 oponente.setPuntos(puntos);
+                vidaMaquina.setText("LP de "+oponente.getNombre()+": "+oponente.getPuntos());
                 cartaOponente.destruida();
-                Utilitaria.noHayCarta(context, monstruoO, cartaOponente);
                 oponente.getTablero().removerCarta(cartaOponente);
+                ArrayList<Carta> orgo= new ArrayList<>();
+                for(CartaMonstruo c : oponente.getTablero().getCartasMons())
+                    orgo.add(c);
+                Utilitaria.organizarTablero(context,orgo,monstruoO);
                 Utilitaria.crearDialogs(context,"Ataque",atacante.getNombre()+ " uso "+cartaAtacante.getNombre()+" y ataco a "+cartaOponente.getNombre(),"Se realizo el ataque");
                 return "Carta de : "+oponente.getNombre()+" \n"+ cartaOponente.getNombre() + "destruida. \nPuntos de oponente actualizados. ";
             } else if (cartaAtacante.getAtaque() == cartaOponente.getAtaque()) {
@@ -58,22 +66,29 @@ public class Juego {
                 atacante.getTablero().removerCarta(cartaAtacante);
                 cartaOponente.destruida();
                 cartaAtacante.destruida();
-                Utilitaria.noHayCarta(context, monstruoO, cartaOponente);
-                Utilitaria.noHayCarta(context, monstruoA, cartaAtacante);
+                ArrayList<Carta> orga= new ArrayList<>();
+                for(CartaMonstruo c : atacante.getTablero().getCartasMons())
+                    orga.add(c);
+                Utilitaria.organizarTablero(context,orga,monstruoA);
+                ArrayList<Carta> orgo= new ArrayList<>();
+                for(CartaMonstruo c : oponente.getTablero().getCartasMons())
+                    orgo.add(c);
+                Utilitaria.organizarTablero(context,orgo,monstruoO);
                 return "Sus cartas fueron iguales y se destruyeron.\n";
             } else 
                 return "Carta de: "+atacante.getNombre()+"\n" + cartaAtacante.getNombre() + "\n no pudo atacar a\n" + cartaOponente.getNombre() + "\n porque es de menor ataque";
         }
         else if (cartaAtacante.eModoAtaque() && cartaOponente.eModoDefensa()) {
             if (cartaAtacante.getAtaque() > cartaOponente.getDefensa()) {
+                Utilitaria.noHayCarta(context, monstruoO, cartaOponente);
                 oponente.getTablero().removerCarta(cartaOponente);
                 cartaOponente.destruida();
-                Utilitaria.noHayCarta(context, monstruoO, cartaOponente);
                 return "Carta oponente destruida.\n";
             } else if (cartaAtacante.getAtaque() < cartaOponente.getDefensa()) {
                 int diferencia = cartaAtacante.getAtaque() - cartaOponente.getDefensa();
                 int puntos = atacante.getPuntos() - Math.abs(diferencia);
                 atacante.setPuntos(puntos);
+                vidaJugador.setText("LP de "+atacante.getNombre()+": "+atacante.getPuntos());
                 cartaOponente.modoAtaque();
                 cartaOponente.setPosicion(Posicion.HORIZONTAL);
                 return "Ataque fallido, puntos del atacante actualizados.\n";
@@ -145,7 +160,7 @@ public class Juego {
 
     }
 
-    public String mBatalla(Jugador jugador,LinearLayout layoutMaquina,LinearLayout layoutJugador, LinearLayout especialesJ,LinearLayout especialesM) {
+    public String mBatalla(Jugador jugador,LinearLayout layoutMaquina,LinearLayout layoutJugador, LinearLayout especialesJ,LinearLayout especialesM,TextView vidaJugador,TextView vidaMaquina) {
         usarMagicasM(especialesM);
         ArrayList<CartaMonstruo> monstruosJ = new ArrayList<>();
         ArrayList<Carta> usadas = new ArrayList<>();
@@ -163,13 +178,13 @@ public class Juego {
 
                 if (trampas.isEmpty()){
                     if (monstruosJ.isEmpty()){
-                        Juego.batallaDirecta(monsM,jugador);
+                        Juego.batallaDirecta(monsM,jugador,vidaJugador);
                     }
                     else {
                         for (CartaMonstruo monsJ: monstruosJ){
                             if (monsM.getAtaque() > monsJ.getAtaque()||monsM.getAtaque() > monsJ.getDefensa()||monsM.getDefensa() < monsJ.getAtaque()||monsM.getAtaque() == monsJ.getAtaque()){
                                 usadas.add(monsM);
-                                resultado.append(Juego.declararBatalla(monsJ,monsM,jugador,maquina,context,layoutJugador,layoutMaquina)).append("\n");
+                                resultado.append(Juego.declararBatalla(monsJ,monsM,jugador,maquina,context,layoutJugador,layoutMaquina,vidaMaquina,vidaJugador)).append("\n");
                             }
                         }
                     }
@@ -179,7 +194,7 @@ public class Juego {
         return resultado.toString();
     }
 
-
+/*
     public void jugar(LinearLayout manoJ, LinearLayout manoM, LinearLayout monstruosJ, LinearLayout monstruosM, LinearLayout especialesJ,LinearLayout especialesM) {
         if (turno==0){
 
@@ -234,6 +249,7 @@ public class Juego {
         }
 
     }
+    */
 
 
     public void prueba(LinearLayout manoJ, LinearLayout manoM, LinearLayout monstruosJ, LinearLayout monstruosM, LinearLayout especialesJ, LinearLayout especialesM, TextView turnosView,TextView vidaJView,TextView vidaMView) {
@@ -312,7 +328,7 @@ public class Juego {
                 builder.show();
                 turno+=1;
             }else {
-                String maquinaB = this.mBatalla(jugador,monstruosM,monstruosJ,especialesJ,especialesM);
+                String maquinaB = this.mBatalla(jugador,monstruosM,monstruosJ,especialesJ,especialesM,vidaJView,vidaMView);
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("Batalla de la Máquina");
                 builder.setMessage(maquinaB);
@@ -321,7 +337,7 @@ public class Juego {
                 builder.setPositiveButton("OK", (dialog, which) -> {
                     dialog.dismiss(); // Cierra el cuadro de diálogo
                 });
-                Utilitaria.mostrarDetallesbatalla(context, monstruosJ,monstruosM,especialesJ,especialesM,jugador.getTablero().getCartasMons(),jugador.getTablero().getEspeciales(),maquina.getTablero().getCartasMons(),maquina.getTablero().getEspeciales(),jugador,maquina);
+                Utilitaria.mostrarDetallesbatalla(context, monstruosJ,monstruosM,especialesJ,especialesM,jugador.getTablero().getCartasMons(),jugador.getTablero().getEspeciales(),maquina.getTablero().getCartasMons(),maquina.getTablero().getEspeciales(),jugador,maquina,vidaJView,vidaMView);
 
                 turno++;
             }

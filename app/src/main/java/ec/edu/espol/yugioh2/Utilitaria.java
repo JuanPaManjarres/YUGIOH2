@@ -403,7 +403,7 @@ public class Utilitaria {
         }
     }
     public static void mostrarDetallesbatalla(Context context, LinearLayout monstruosJ, LinearLayout monstruosM, LinearLayout magicasJ, LinearLayout magicasM,
-                                              ArrayList<CartaMonstruo> tableroMonsJ, ArrayList<Carta> tableroEspeJ, ArrayList<CartaMonstruo> tableroMonsM, ArrayList<Carta> tableroEspeM, Jugador jugador, Jugador maquina) {
+                                              ArrayList<CartaMonstruo> tableroMonsJ, ArrayList<Carta> tableroEspeJ, ArrayList<CartaMonstruo> tableroMonsM, ArrayList<Carta> tableroEspeM, Jugador jugador, Jugador maquina,TextView vidaJugador,TextView vidaMaquina) {
         // Recorrer el LinearLayout de monstruos
         for (int i = 0; i < monstruosJ.getChildCount(); i++) {
             ImageView carta = (ImageView) monstruosJ.getChildAt(i);
@@ -436,7 +436,7 @@ public class Utilitaria {
                     // Solo agregar el botón de "Declarar batalla" si la carta está en modo ataque (posición vertical)
                     if (cartaMonstruo.getPosicion() == Posicion.VERTICAL) {
                         builder.setPositiveButton("Declarar batalla", (dialog, which) -> {
-                          selecOponente(context,tableroMonsM,monstruosM,monstruosJ,jugador,maquina,cartaMonstruo);
+                          selecOponente(context,tableroMonsM,monstruosM,monstruosJ,jugador,maquina,cartaMonstruo,vidaJugador,vidaMaquina);
                           Toast.makeText(context, "Declaro batalla", Toast.LENGTH_SHORT).show();
 
                         });
@@ -620,7 +620,7 @@ public class Utilitaria {
     }
 
     public static void selecOponente(Context context, ArrayList<CartaMonstruo> cartasOponente, LinearLayout layoutOponente, LinearLayout layoutAtacante,
-                                     Jugador atacante, Jugador oponente, CartaMonstruo cartaAtacante) {
+                                     Jugador atacante, Jugador oponente, CartaMonstruo cartaAtacante, TextView vidaJugador, TextView vidaMaquina) {
 
         // Obtener el ID de la imagen "no_hay_carta"
         int noHayCartaId = context.getResources().getIdentifier("no_hay_carta", "drawable", context.getPackageName());
@@ -628,14 +628,8 @@ public class Utilitaria {
 
         // TENGO LA CARTA ATACANTE
         for (int i = 0; i < layoutOponente.getChildCount(); i++) {
+            int finalIndex = i; // Necesario para acceder al índice en el OnClickListener
             ImageView cartaOponenteView = (ImageView) layoutOponente.getChildAt(i);
-            ArrayList<CartaMonstruo> cartasMonstruos = cartasOponente;
-            ArrayList<Carta> cartasM = new ArrayList<>();
-
-            // Convertir cada CartaMonstruo a Carta
-            for (CartaMonstruo cartaMonstruo : cartasMonstruos) {
-                cartasM.add(cartaMonstruo); // CartaMonstruo es un tipo de Carta, por lo que se puede agregar directamente
-            }
 
             cartaOponenteView.setOnClickListener(oponenteView -> {
                 // Verificar si se está tocando un espacio del layoutOponente
@@ -655,30 +649,31 @@ public class Utilitaria {
                     return;
                 }
 
+                // Verificar si la carta seleccionada está boca abajo
+                CartaMonstruo cartaSeleccionada = cartasOponente.get(finalIndex); // Usar el índice del tablero
+                if (cartaSeleccionada.getOrientacion() == Orientacion.ABAJO) {
+                    // Realizar la batalla con la carta boca abajo en la posición seleccionada
+                    String resultado = Juego.declararBatalla(cartaSeleccionada, cartaAtacante, oponente, atacante, context, layoutOponente, layoutAtacante, vidaJugador, vidaMaquina);
+                    crearDialogs(context, "JUGADORES", resultado, "OK");
+
+                    // DESHABILITAR CLICK LISTENER DESPUÉS DEL ATAQUE
+                    for (int j = 0; j < layoutOponente.getChildCount(); j++) {
+                        layoutOponente.getChildAt(j).setOnClickListener(null);
+                    }
+                    return;
+                }
+
+                // Si la carta no está boca abajo, proceder con la lógica estándar
                 String cartaTag = (String) cartaOponenteView.getTag();
-                Carta c = buscarCarta(cartasM, cartaTag);
+                CartaMonstruo cartaOponente = cartasOponente.get(finalIndex);
 
-                if (c != null) {
-                    if (c instanceof CartaMonstruo) {
-                        CartaMonstruo cartaOponente = (CartaMonstruo) c;
+                if (cartaOponente != null) {
+                    String resultado = Juego.declararBatalla(cartaOponente, cartaAtacante, oponente, atacante, context, layoutOponente, layoutAtacante, vidaJugador, vidaMaquina);
+                    crearDialogs(context, "JUGADORES", resultado, "OK");
 
-                        ArrayList<CartaTrampa> trampas = new ArrayList<>();
-                        String resultadoTrampas = Juego.usarTrampas(oponente, cartaAtacante, trampas, context, layoutOponente);
-
-                        // Mostrar el resultado de las trampas si se activaron
-                        if (!trampas.isEmpty()) {
-                            crearDialogs(context, "Trampas activadas", resultadoTrampas, "OK");
-                        }
-
-                        if (trampas.isEmpty()) {
-                            // Declarar la batalla
-                            String resultado = Juego.declararBatalla(cartaOponente, cartaAtacante, oponente, atacante, context, layoutOponente, layoutAtacante);
-                            crearDialogs(context, "JUGADORES", resultado, "OK");
-                        }
-                        // DESHABILITAR CLICK LISTENER DESPUÉS DEL ATAQUE
-                        for (int j = 0; j < layoutOponente.getChildCount(); j++) {
-                            layoutOponente.getChildAt(j).setOnClickListener(null);
-                        }
+                    // DESHABILITAR CLICK LISTENER DESPUÉS DEL ATAQUE
+                    for (int j = 0; j < layoutOponente.getChildCount(); j++) {
+                        layoutOponente.getChildAt(j).setOnClickListener(null);
                     }
                 } else {
                     Toast.makeText(context, "La carta seleccionada no puede ser atacada.", Toast.LENGTH_SHORT).show();
@@ -686,6 +681,8 @@ public class Utilitaria {
             });
         }
     }
+
+
 
     public static void selecMejora(Context context,ArrayList<CartaMonstruo> monstruosMejorar, LinearLayout layoutMonstruos,LinearLayout layoutMagicas,
                                      CartaMagica cartaMagica, Jugador jugador) {
@@ -718,6 +715,68 @@ public class Utilitaria {
                     Toast.makeText(context, "Selecciona un Monstruo.", Toast.LENGTH_SHORT).show();
                 }
             });
+        }
+    }
+
+
+    private static void fasesDialogBatalla(Context context,
+                                           CartaMonstruo cartaAtacante, String fase, ImageView imageView,
+                                           ImageView[] currentSelectedCard, LinearLayout layoutOponente,
+                                           ArrayList<CartaMonstruo> cartasOponente, Jugador atacante, Jugador oponente) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Detalles de la Carta");
+        builder.setMessage(cartaAtacante.toString());
+
+        if ("Fase Batalla".equals(fase)) {
+            builder.setPositiveButton("Declarar Batalla", (dialog, which) -> {
+                // Seleccionar carta oponente tras confirmar ataque
+                currentSelectedCard[0] = imageView;
+                Toast.makeText(context, "Selecciona una carta oponente para atacar.", Toast.LENGTH_SHORT).show();
+            });
+
+            builder.setNeutralButton("Cancelar", (dialog, which) -> dialog.dismiss());
+        }
+
+        builder.show();
+
+    }
+    public static void organizarTablero(Context context, ArrayList<Carta> tableroLogico, LinearLayout tableroVisual) {
+        // Verificar si el LinearLayout tiene suficientes espacios para representar el tablero lógico
+        if (tableroVisual.getChildCount() < tableroLogico.size()) {
+            throw new IllegalArgumentException("El LinearLayout no tiene suficientes espacios para representar el tablero lógico.");
+        }
+
+        // Obtener el ID de la imagen "no_hay_carta"
+        int noHayCartaId = context.getResources().getIdentifier("no_hay_carta", "drawable", context.getPackageName());
+        Drawable noHayCartaDrawable = context.getResources().getDrawable(noHayCartaId);
+
+        // Recorrer el tablero visual y sincronizar con el tablero lógico
+        for (int i = 0; i < tableroVisual.getChildCount(); i++) {
+            ImageView imageView = (ImageView) tableroVisual.getChildAt(i);
+
+            if (i < tableroLogico.size() && tableroLogico.get(i) != null) {
+                // Obtener la imagen de la carta lógica
+                String imagenCarta = tableroLogico.get(i).getImagen();
+                int cartaDrawableId = context.getResources().getIdentifier(imagenCarta, "drawable", context.getPackageName());
+
+                if (cartaDrawableId != 0) {
+                    // Reemplazar el ImageView con la imagen de la carta lógica
+                    Drawable cartaDrawable = context.getResources().getDrawable(cartaDrawableId);
+                    imageView.setImageDrawable(cartaDrawable);
+
+                    // Asignar el tag de la carta para referencia futura
+                    imageView.setTag(tableroLogico.get(i).getImagen());
+                } else {
+                    // Si no se encuentra la imagen de la carta, usar la imagen "no_hay_carta"
+                    imageView.setImageDrawable(noHayCartaDrawable);
+                    imageView.setTag("no_hay_carta");
+                }
+            } else {
+                // Si no hay carta lógica en esa posición, usar la imagen "no_hay_carta"
+                imageView.setImageDrawable(noHayCartaDrawable);
+                imageView.setTag("no_hay_carta");
+            }
         }
     }
 

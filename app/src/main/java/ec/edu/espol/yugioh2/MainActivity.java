@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView currentSelectedCard = null;
     private Jugador j;
 
+    private Juego juego; // Declaramos el juego aquí para tener acceso global
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,42 +50,28 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
-
+        // Inicializar vistas
         fases_J = (TextView) findViewById(R.id.fases_M);
-
-        manoJugador= findViewById(R.id.manoJugador);
-
-        magicasJ = findViewById(R.id.magicasJ); // cambie monstruoJ por magicaJ incluso en la funcion del tablero
-        monstruosJ= findViewById(R.id.monstruosJ);
-        magicasM= findViewById(R.id.magicasM);
-        monstruoM= findViewById(R.id.monstruosM);
+        manoJugador = findViewById(R.id.manoJugador);
+        magicasJ = findViewById(R.id.magicasJ); // Cambié monstruoJ por magicaJ
+        monstruosJ = findViewById(R.id.monstruosJ);
+        magicasM = findViewById(R.id.magicasM);
+        monstruoM = findViewById(R.id.monstruosM);
         manoMaquina = findViewById(R.id.manoMaquina);
-        vidaJugador= (TextView) findViewById(R.id.vidaJugador);
-        vidaMaquina= (TextView) findViewById(R.id.vidaMaquina);
-        turno= (TextView) findViewById(R.id.turno);
+        vidaJugador = (TextView) findViewById(R.id.vidaJugador);
+        vidaMaquina = (TextView) findViewById(R.id.vidaMaquina);
+        turno = (TextView) findViewById(R.id.turno);
 
-
-        j= new Jugador("Juan",this);
+        // Inicializamos los jugadores y la vida
+        j = new Jugador("Juan", this);
         j.setPuntos(100);
-        Utilitaria.vidaJugadorView(j,vidaJugador);
-        Utilitaria.cambiarturnoView(2,turno);
+        Utilitaria.vidaJugadorView(j, vidaJugador);
+        Utilitaria.cambiarturnoView(2, turno);
+
         TextView textoInicioJuego = findViewById(R.id.texto_inicio_juego);
-
-
-
-        //fases();
-        //inicializar();
-
-
-
         textoInicioJuego.setVisibility(View.VISIBLE);
+
+        // Ocultamos el texto de inicio después de 3 segundos
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -92,32 +79,60 @@ public class MainActivity extends AppCompatActivity {
             }
         }, 3000);
 
-        Juego juego = new Juego(new Jugador("Alexa",this),this);
-        //juego.prueba(manoJugador,manoMaquina,monstruosJ,monstruoM,magicasJ,magicasM);
+        // Inicializamos el juego
+        juego = new Juego(new Jugador("Alexa", this), this);
 
-        //Utilitaria.colocarTablero(this,manoJugador,monstruosJ);
-
-
-
-        //Se define un boton con el ID y se crea una variable
-        Button btnCambiarFase = findViewById(R.id.boton_cambiar_fase); //se agrega el boton con el ID
-        // Agrega un OnClickListener al botón
+        // Configuramos el botón para cambiar de fase
+        Button btnCambiarFase = findViewById(R.id.boton_cambiar_fase);
         btnCambiarFase.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Aquí va la lógica para cambiar de fase
+                // Cambiar la fase del juego
                 cambiarFase(fases_J);
-                juego.setFase(fases_J.getText().toString(), manoJugador, manoMaquina, monstruosJ,monstruoM,magicasJ,magicasM,turno,vidaJugador,vidaMaquina);
-            }
+                juego.setFase(fases_J.getText().toString(), manoJugador, manoMaquina, monstruosJ, monstruoM, magicasJ, magicasM, turno, vidaJugador, vidaMaquina);
 
+                // Verificar si el jugador o la máquina ganaron
+                verificarFinJuego();
+            }
         });
 
-
+        // Verificar si el juego ha terminado al inicio (antes de que el jugador haga clic)
+        verificarFinJuego();
     }
 
+    private void verificarFinJuego() {
+        // Obtener la vida actual del jugador y la máquina
+        String[] arr1 = vidaJugador.getText().toString().split(":");
+        int ptsJ = Integer.parseInt(arr1[1].trim());
+
+        String[] arr2 = vidaMaquina.getText().toString().split(":");
+        int ptsM = Integer.parseInt(arr2[1].trim());
+
+        // Verificar si la vida del jugador es menor que 0
+        if (ptsJ <= 0) {
+            mostrarDialogo("El juego ha terminado", "¡" +juego.getMaquina()+" ha ganado el juego!", true);
+        } else if (ptsM <= 0) {
+            mostrarDialogo("El juego ha terminado", "¡" +juego.getJugador()+" ha ganado el juego!", true);
+        }
+    }
+
+    private void mostrarDialogo(String titulo, String mensaje, final boolean cerrar) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle(titulo)
+                .setMessage(mensaje)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (cerrar) {
+                            finish(); // Cerrar la actividad
+                        }
+                    }
+                })
+                .setCancelable(false) // Evitar que se cierre tocando fuera del diálogo
+                .show();
+    }
 
     // Metodo para cambiar de fase
-
     private void cambiarFase(TextView j) {
         // Lógica para cambiar de fase
         String faseActual = j.getText().toString();
@@ -134,71 +149,5 @@ public class MainActivity extends AppCompatActivity {
         //Toast.makeText(this, "Fase cambiada", Toast.LENGTH_SHORT).show();//muestra un pequeño mensaje que la fase se ha cambiado y luego se elimina
         j.setText(nuevaFase);
     }
-
-    public void mostrarDetallesCarta(Carta carta) {
-        // Crear el cuadro de diálogo
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Detalles de la Carta");
-
-        if (carta instanceof CartaMonstruo) {
-            CartaMonstruo c = (CartaMonstruo) carta;
-            builder.setMessage(c.toString());
-        } else if (carta instanceof CartaMagica) {
-            CartaMagica c = (CartaMagica) carta;
-            builder.setMessage(c.toString());
-        } else if (carta instanceof CartaTrampa) {
-            CartaTrampa c = (CartaTrampa) carta;
-            builder.setMessage(c.toString());
-        }
-
-        // Botones del cuadro de diálogo
-        builder.setPositiveButton("Ataque", (dialog, which) -> {
-            Toast.makeText(getApplicationContext(), "Se tomo la carta", Toast.LENGTH_SHORT).show();
-            // Aquí puedes agregar la lógica para poner la carta en ataque (guardar el estado, etc.)
-        });
-
-        builder.setNegativeButton("Defensa", (dialog, which) -> {
-            Toast.makeText(getApplicationContext(), "Carta colocada en Defensa", Toast.LENGTH_SHORT).show();
-            // Aquí puedes agregar la lógica para poner la carta en defensa (guardar el estado, etc.)
-        });
-
-        builder.setNeutralButton("Cancelar", (dialog, which) -> dialog.dismiss());
-        builder.show();
-
-    }
-
-    public void inicializar()
-    {
-        ArrayList<ImageView> imagenesDeck= new ArrayList<>();
-        AssetManager am = this.getAssets();
-        try {
-            //Jugador j = new Jugador("Alexa",this);
-            Deck deck= Deck.crearDeck(am);
-            ArrayList<Carta> cartas= deck.getCartas();
-            //ArrayList<Carta> cartas= j.getMano();
-
-            for(Carta c : cartas)
-            {
-                ImageView imv = new ImageView(this);
-                Resources resources = getResources();
-                int rid = resources.getIdentifier(c.getImagen(),"drawable",getPackageName());
-                imv.setImageResource(rid);
-                manoJugador.addView(imv);
-                //imv.getLayoutParams().width = LinearLayout.LayoutParams.WRAP_CONTENT;
-                imv.getLayoutParams().width = 250;
-                imv.setPadding(10,0,10,0);
-                imv.setScaleType(ImageView.ScaleType.FIT_XY);
-                imv.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mostrarDetallesCarta(c);
-                    }
-                });
-                imagenesDeck.add(imv);
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
+
