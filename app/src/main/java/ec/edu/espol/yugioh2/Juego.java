@@ -51,6 +51,7 @@ public class Juego {
                 cartaOponente.destruida();
                 Utilitaria.noHayCarta(context, monstruoO, cartaOponente);
                 oponente.getTablero().removerCarta(cartaOponente);
+                Utilitaria.crearDialogs(context,"Ataque",atacante.getNombre()+ " uso "+cartaAtacante.getNombre()+" y ataco a "+cartaOponente.getNombre(),"Se realizo el ataque");
                 return "Carta de : "+oponente.getNombre()+" \n"+ cartaOponente.getNombre() + "destruida. \nPuntos de oponente actualizados. ";
             } else if (cartaAtacante.getAtaque() == cartaOponente.getAtaque()) {
                 oponente.getTablero().removerCarta(cartaOponente);
