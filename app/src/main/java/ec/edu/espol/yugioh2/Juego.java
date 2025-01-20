@@ -113,7 +113,30 @@ public class Juego {
         //Buscar la imagen con ese nombre y colocarlo en el LinearLayout de la mano
         //Tiene que agregarse la carta a la mano visualmente
     }
-    public String mBatalla(Jugador jugador,LinearLayout layoutMaquina,LinearLayout layoutJugador, LinearLayout especialesJ) {
+
+    public void usarMagicasM(LinearLayout especialesM){
+        ArrayList<Carta> especiales = maquina.getTablero().getEspeciales();
+        ArrayList<CartaMonstruo> monstruos = maquina.getTablero().getCartasMons();
+        ArrayList<Carta> usadas = new ArrayList<>();
+
+        for (Carta carta: especiales){
+            if (!usadas.contains(carta)){
+                for (CartaMonstruo monstruo: monstruos){
+                    if (carta instanceof CartaMagica){
+                        ((CartaMagica) carta).usar(monstruo,maquina);
+                        usadas.add(carta);
+                    }
+                }
+            }
+        }
+        for (Carta carta: usadas)
+            Utilitaria.noHayCarta(context, especialesM, carta);
+        especiales.removeAll(usadas);
+
+    }
+
+    public String mBatalla(Jugador jugador,LinearLayout layoutMaquina,LinearLayout layoutJugador, LinearLayout especialesJ,LinearLayout especialesM) {
+        usarMagicasM(especialesM);
         ArrayList<CartaMonstruo> monstruosJ = new ArrayList<>();
         ArrayList<Carta> usadas = new ArrayList<>();
         ArrayList<CartaTrampa> trampas = new ArrayList<>();
@@ -280,7 +303,15 @@ public class Juego {
                 builder.show();
                 turno+=1;
             }else {
-                this.mBatalla(jugador,monstruosM,monstruosJ,especialesJ);
+                String maquinaB = this.mBatalla(jugador,monstruosM,monstruosJ,especialesJ,especialesM);
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Batalla de la Máquina");
+                builder.setMessage(maquinaB);
+
+                // Botón "OK" para cerrar el diálogo
+                builder.setPositiveButton("OK", (dialog, which) -> {
+                    dialog.dismiss(); // Cierra el cuadro de diálogo
+                });
                 Utilitaria.mostrarDetallesbatalla(context, monstruosJ,monstruosM,especialesJ,especialesM,jugador.getTablero().getCartasMons(),jugador.getTablero().getEspeciales(),maquina.getTablero().getCartasMons(),maquina.getTablero().getEspeciales(),jugador,maquina);
 
                 turno++;

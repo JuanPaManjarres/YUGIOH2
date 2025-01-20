@@ -96,21 +96,5 @@ public class Maquina extends Jugador {
     }
 
     //COMO LA MAQUINA USA LAS ESPECIALES
-    public void usarMagicas(){
-        ArrayList<Carta> especiales = this.getTablero().getEspeciales();
-        ArrayList<CartaMonstruo> monstruos = this.getTablero().getCartasMons();
-        ArrayList<Carta> usadas = new ArrayList<>();
 
-        for (Carta carta: especiales){
-            if (!usadas.contains(carta)){
-                for (CartaMonstruo monstruo: monstruos){
-                    if (carta instanceof CartaMagica){
-                        ((CartaMagica) carta).usar(monstruo,this);
-                        usadas.add(carta);
-                    }
-                }
-            }
-        }
-    
-    }
 }
