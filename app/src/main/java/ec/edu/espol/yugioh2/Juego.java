@@ -113,8 +113,9 @@ public class Juego {
                 Utilitaria.noHayCarta(context,especialesJ,especial);
                 resultado.append("Se usó una carta trampa: ").append(especial).append("\n");
             }
-            else
-                resultado.append("");
+        }
+        if (trampas.isEmpty()) {
+            resultado.append("No hay trampas para usar");
         }
         j.getTablero().getEspeciales().removeAll(cartasParaEliminar);
         return resultado.toString();
@@ -140,7 +141,7 @@ public class Juego {
             if (!usadas.contains(carta)){
                 for (CartaMonstruo monstruo: monstruos){
                     if (carta instanceof CartaMagica){
-                        ((CartaMagica) carta).usar(monstruo,maquina);
+                        ((CartaMagica) carta).usar(monstruo);
 
                     }
                 }
@@ -258,7 +259,6 @@ public class Juego {
 
 
         if (fase.equals("Fase Tomar Carta")) {
-
 
             if (turno==1){
                 for (Carta c : jugador.getMano()) {

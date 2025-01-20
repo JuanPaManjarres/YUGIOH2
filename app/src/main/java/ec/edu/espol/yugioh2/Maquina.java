@@ -65,8 +65,10 @@ public class Maquina extends Jugador {
     }
     
     public void agregarEspecialesTablero(Carta especial){
-        if (getTablero().getEspeciales().size() < 3)
+        if (getTablero().getEspeciales().size() < 3) {
             getTablero().getEspeciales().add(especial);
+            getMano().remove(especial);
+        }
     }
 
 
@@ -96,5 +98,8 @@ public class Maquina extends Jugador {
     }
 
     //COMO LA MAQUINA USA LAS ESPECIALES
+    public String toString(){
+        return super.toString();
+    }
 
 }

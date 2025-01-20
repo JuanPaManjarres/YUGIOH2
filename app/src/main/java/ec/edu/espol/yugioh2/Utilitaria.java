@@ -295,7 +295,6 @@ public class Utilitaria {
                     Toast.makeText(context, "No se puede colocar más cartas especiales", Toast.LENGTH_SHORT).show();
                 }
             }
-
         } else {
             Toast.makeText(context, "Selecciona una carta primero", Toast.LENGTH_SHORT).show();
         }
@@ -705,7 +704,7 @@ public class Utilitaria {
                 if (c != null) {
                     if(c instanceof CartaMonstruo) {
                         CartaMonstruo cartaMejora = (CartaMonstruo) c;
-                        String resultado = cartaMagica.usar(cartaMejora,jugador);
+                        String resultado = cartaMagica.usar(cartaMejora);
                         if (!resultado.equals("No se puede usar, no son del mismo tipo de Monstruo"))
                             noHayCarta(context,layoutMagicas,cartaMagica);
                         crearDialogs(context, "MEJORA", resultado, "OK");
@@ -718,6 +717,7 @@ public class Utilitaria {
             });
         }
     }
+
 
     private static void fasesDialogBatalla(Context context,
                                            CartaMonstruo cartaAtacante, String fase, ImageView imageView,
@@ -779,9 +779,6 @@ public class Utilitaria {
             }
         }
     }
-
-
-
 
 
 }
