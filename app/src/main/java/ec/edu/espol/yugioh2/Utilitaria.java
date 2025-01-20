@@ -605,10 +605,10 @@ public class Utilitaria {
         }
     }
 
-    public static void selecOponente(Context context,ArrayList<CartaMonstruo> cartasOponente, LinearLayout layoutOponente,LinearLayout layoutAtacante,
-                                        Jugador atacante, Jugador oponente,CartaMonstruo cartaAtacante) {
+    public static void selecOponente(Context context, ArrayList<CartaMonstruo> cartasOponente, LinearLayout layoutOponente, LinearLayout layoutAtacante,
+                                     Jugador atacante, Jugador oponente, CartaMonstruo cartaAtacante) {
 
-        //TENGO LA CARTA ATACANTE
+        // TENGO LA CARTA ATACANTE
         for (int i = 0; i < layoutOponente.getChildCount(); i++) {
             ImageView cartaOponenteView = (ImageView) layoutOponente.getChildAt(i);
             ArrayList<CartaMonstruo> cartasMonstruos = cartasOponente;
@@ -620,18 +620,27 @@ public class Utilitaria {
             }
 
             cartaOponenteView.setOnClickListener(oponenteView -> {
+                // Verificar si se está tocando un espacio del layoutOponente
+                if (!layoutOponente.equals(oponenteView.getParent())) {
+                    Toast.makeText(context, "No se puede atacar ahí. Seleccione un espacio válido.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 String cartaTag = (String) cartaOponenteView.getTag();
                 Carta c = buscarCarta(cartasM, cartaTag);
 
-                    if (c != null) {
-                        if(c instanceof CartaMonstruo) {
-                            CartaMonstruo cartaOponente = (CartaMonstruo) c;
-                            String resultado = Juego.declararBatalla(cartaOponente, cartaAtacante, oponente, atacante,context,layoutOponente,layoutAtacante);
-                            crearDialogs(context, "JUGADORES", resultado, "OK");
-                            //Toast.makeText(context, resultado, Toast.LENGTH_LONG).show();}
+                if (c != null) {
+                    if (c instanceof CartaMonstruo) {
+                        CartaMonstruo cartaOponente = (CartaMonstruo) c;
+                        String resultado = Juego.declararBatalla(cartaOponente, cartaAtacante, oponente, atacante, context, layoutOponente, layoutAtacante);
+                        crearDialogs(context, "JUGADORES", resultado, "OK");
+
+                        // DESHABILITAR CLICK LISTENER DESPUÉS DEL ATAQUE
+                        for (int j = 0; j < layoutOponente.getChildCount(); j++) {
+                            layoutOponente.getChildAt(j).setOnClickListener(null);
                         }
                     }
-                    else {
+                } else {
                     Toast.makeText(context, "La carta seleccionada no puede ser atacada.", Toast.LENGTH_SHORT).show();
                 }
             });
