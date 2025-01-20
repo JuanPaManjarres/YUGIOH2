@@ -516,6 +516,7 @@ public class Utilitaria {
                     builder.setPositiveButton("Usar carta", (dialog, which) -> {
                         // Lógica para usar la carta mágica
                         selecMejora(context,tableroMonsJ,monstruosJ,magicasJ,cM,jugador);
+                        tableroEspeJ.remove(cartaSeleccionada);
                         Toast.makeText(context, "Carta mágica utilizada", Toast.LENGTH_SHORT).show();
                     });
                 } else if (cartaSeleccionada instanceof CartaTrampa) {
@@ -705,10 +706,11 @@ public class Utilitaria {
                     if(c instanceof CartaMonstruo) {
                         CartaMonstruo cartaMejora = (CartaMonstruo) c;
                         String resultado = cartaMagica.usar(cartaMejora);
-                        if (!resultado.equals("No se puede usar, no son del mismo tipo de Monstruo"))
-                            noHayCarta(context,layoutMagicas,cartaMagica);
+                        if (!resultado.equals("No se puede usar, no son del mismo tipo de Monstruo")) {
+                            organizarTablero(context,jugador.getTablero().getEspeciales(),layoutMagicas);
+                        }
                         crearDialogs(context, "MEJORA", resultado, "OK");
-                        //Toast.makeText(context, resultado, Toast.LENGTH_LONG).show();}
+
                     }
                 }
                 else {
