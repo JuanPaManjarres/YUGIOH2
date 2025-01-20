@@ -139,10 +139,25 @@ public class Utilitaria {
                 return;  // Salir de la función para evitar que la carta se coloque
             }
 
-            // Reemplazar la carta en el contenedor adecuado
-            cartaSeleccionada.setImageResource(imagenId);
-            cartaSeleccionada.setTag(carta.getImagen());  // Actualiza el tag con el nombre de la carta
+            // Si la carta es un monstruo, verificar la orientación
+            if (tipoCarta.equals("CartaMonstruo")) {
+                CartaMonstruo cm = (CartaMonstruo) carta;
 
+                if (cm.getOrientacion() == Orientacion.ARRIBA) {
+                    // Reemplazar la carta en el contenedor para cartas en orientación ARRIBA
+                    cartaSeleccionada.setImageResource(imagenId);
+                    cartaSeleccionada.setTag(carta.getImagen());  // Actualiza el tag con el nombre de la carta
+                } else {
+                    // Reemplazar la carta en el contenedor para cartas en orientación ABAJO
+                    int cartaAbajoId = R.drawable.carta_abajo; // Asegúrate de usar un recurso adecuado para la carta en orientación abajo
+                    cartaSeleccionada.setImageResource(cartaAbajoId);
+                    cartaSeleccionada.setTag("carta_abajo");  // Cambia el tag a "carta_abajo" o el identificador adecuado
+                }
+            } else {
+                // Si no es un monstruo, reemplazar la carta normalmente
+                cartaSeleccionada.setImageResource(imagenId);
+                cartaSeleccionada.setTag(carta.getImagen());  // Actualiza el tag con el nombre de la carta
+            }
         }
     }
 /*
