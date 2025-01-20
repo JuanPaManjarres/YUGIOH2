@@ -126,7 +126,7 @@ public class Juego {
             if (!usadas.contains(carta)){
                 for (CartaMonstruo monstruo: monstruos){
                     if (carta instanceof CartaMagica){
-                        ((CartaMagica) carta).usar(monstruo,maquina);
+                        ((CartaMagica) carta).usar(monstruo);
 
                     }
                 }
@@ -243,7 +243,6 @@ public class Juego {
 
 
         if (fase.equals("Fase Tomar Carta")) {
-
 
             if (turno==1){
                 for (Carta c : jugador.getMano()) {
