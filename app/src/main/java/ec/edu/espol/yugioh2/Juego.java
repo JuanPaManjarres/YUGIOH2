@@ -94,6 +94,10 @@ public class Juego {
                 vidaJugador.setText("LP de "+atacante.getNombre()+": "+atacante.getPuntos());
                 cartaOponente.modoAtaque();
                 cartaOponente.setPosicion(Posicion.HORIZONTAL);
+                ArrayList<Carta> orgo= new ArrayList<>();
+                for(CartaMonstruo c : oponente.getTablero().getCartasMons())
+                    orgo.add(c);
+                Utilitaria.organizarTablero(context,orgo,monstruoO);
                 return "Ataque fallido, puntos del atacante actualizados.\n";
             } else {
                 return "Carta " + cartaAtacante.getNombre() + " no pudo atacar " + cartaOponente.getNombre() + "\n Mismo ataque y defensa";
@@ -323,6 +327,11 @@ public class Juego {
                 Utilitaria.reemplazar(context, carta, especialesM);
                 Utilitaria.removerImageView(context, manoM, carta);
             }
+            Utilitaria.organizarTablero(context,maquina.getTablero().getEspeciales(),especialesM);
+            ArrayList<Carta> orga= new ArrayList<>();
+            for(CartaMonstruo c : maquina.getTablero().getCartasMons())
+                orga.add(c);
+            Utilitaria.organizarTablero(context,orga,monstruosM);
 
         }
 

@@ -159,6 +159,7 @@ public class Utilitaria {
                 cartaSeleccionada.setTag(carta.getImagen());  // Actualiza el tag con el nombre de la carta
             }
         }
+
     }
 /*
     public static void cartaViewM(Context context, Carta carta, LinearLayout contenedor) {
@@ -622,6 +623,13 @@ public class Utilitaria {
 
     public static void selecOponente(Context context, ArrayList<CartaMonstruo> cartasOponente, LinearLayout layoutOponente, LinearLayout layoutAtacante,
                                      Jugador atacante, Jugador oponente, CartaMonstruo cartaAtacante, TextView vidaJugador, TextView vidaMaquina) {
+
+        // Verificar si no hay cartas en el tablero del oponente
+        if (cartasOponente == null || cartasOponente.size() == 0) {
+            // Realizar una batalla directa
+            Juego.batallaDirecta(cartaAtacante, oponente, vidaMaquina); // Usamos vidaMaquina para actualizar la vida del oponente
+            return;
+        }
 
         // Obtener el ID de la imagen "no_hay_carta"
         int noHayCartaId = context.getResources().getIdentifier("no_hay_carta", "drawable", context.getPackageName());
