@@ -33,13 +33,19 @@ public class Tablero {
 
     //remover carta
 
-    public void removerCarta(Carta c){
-        if (c instanceof CartaMonstruo){
+    public void removerCarta(Carta c) {
+        if (c instanceof CartaMonstruo) {
             CartaMonstruo c1 = (CartaMonstruo) c;
-            cartasMons.remove(c1);
+            int index = cartasMons.indexOf(c1);
+            if (index != -1) {
+                cartasMons.set(index, null);  // Reemplaza la carta por null
+            }
         }
-        if ((c instanceof CartaMagica) ||(c instanceof CartaTrampa) ){
-            especiales.remove(c);
+        if ((c instanceof CartaMagica) || (c instanceof CartaTrampa)) {
+            int index = especiales.indexOf(c);
+            if (index != -1) {
+                especiales.set(index, null);  // Reemplaza la carta por null
+            }
         }
     }
 
